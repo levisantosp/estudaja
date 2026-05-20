@@ -1,0 +1,28 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Cada usuario autenticado so pode acessar o proprio documento.
+    // O {userId} da URL precisa ser igual ao uid recebido pelo Firebase Auth.
+    match /users/{userId} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == userId;
+
+      // As tarefas ficam dentro de users/{uid}/tasks.
+      // Assim um aluno logado nao consegue ler nem alterar tarefas de outro.
+      match /tasks/{taskId} {
+        allow read, write: if request.auth != null
+          && request.auth.uid == userId;
+      }
+    }
+
+    // Disciplinas ficam em colecao raiz com campo userId.
+    // Cada usuario so acessa documentos onde userId bate com o uid dele.
+    match /subjects/{subjectId} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null
+        && request.auth.uid == request.resource.data.userId;
+    }
+  }
+}

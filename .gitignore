@@ -1,0 +1,103 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.env
+.env.local
+.env.*.local
+.packages
+.fvm/flutter_sdk
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Desktop/web platform folders (projeto é mobile)
+/windows/
+/linux/
+/macos/
+/web/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.plugin_symlinks/
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+/android/.gradle/
+/android/.kotlin/
+/android/build/
+/android/app/build/
+
+# Android local files
+/android/local.properties
+/android/key.properties
+*.jks
+*.keystore
+
+# iOS/macOS local files
+**/Flutter/ephemeral/
+**/flutter/ephemeral/
+**/Pods/
+**/.symlinks/
+**/Flutter/Flutter.podspec
+**/Flutter/Generated.xcconfig
+**/Flutter/flutter_export_environment.sh
+**/Flutter/app.flx
+**/Flutter/app.zip
+**/Flutter/flutter_assets/
+**/ServiceDefinitions.json
+**/xcuserdata/
+**/*.xcuserstate
+
+# Web/generated local files
+/web/flutter_bootstrap.js
+/web/flutter_service_worker.js
+
+# Firebase local/emulator files
+lib/firebase_options.dart
+/android/app/google-services.json
+/ios/Runner/GoogleService-Info.plist
+/macos/Runner/GoogleService-Info.plist
+firebase.json
+.firebaserc
+.firebase/
+firebase-debug.log
+firestore-debug.log
+database-debug.log
+ui-debug.log
+
+**.md
+!.agents/**
