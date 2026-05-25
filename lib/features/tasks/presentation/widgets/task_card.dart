@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../subjects/data/subject.dart';
 import '../../data/task.dart';
 
 // widget que representa um item da lista de tarefas.
@@ -11,9 +12,13 @@ class TaskCard extends StatelessWidget {
     required this.onToggleDone,
     required this.onTap,
     required this.onDelete,
+    this.subject,
   });
 
   final Task task;
+  // disciplina vinculada a tarefa, quando existir. resolvida na page pai
+  // a partir do subjectId, ja que o card nao acessa o firestore diretamente
+  final Subject? subject;
   // callback chamado quando o usuario marca ou desmarca o checkbox
   final ValueChanged<bool> onToggleDone;
   // callback para abrir a tela de edicao da tarefa
@@ -52,6 +57,7 @@ class TaskCard extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 _PriorityChip(priority: task.priority),
+                if (subject != null) _SubjectChip(subject: subject!),
                 if (hasDueDate)
                   Text(
                     'Prazo: ${_formatDate(task.dueDate!)}',
@@ -110,6 +116,25 @@ class _PriorityChip extends StatelessWidget {
       backgroundColor: color,
       visualDensity: VisualDensity.compact,
       padding: const EdgeInsets.symmetric(horizontal: 8),
+    );
+  }
+}
+
+// chip que mostra o nome da disciplina com um circulo da cor escolhida.
+// reaproveita o componente Chip padrao para manter o estilo simples
+class _SubjectChip extends StatelessWidget {
+  const _SubjectChip({required this.subject});
+
+  final Subject subject;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = subject.color != null ? Color(subject.color!) : Colors.grey;
+
+    return Chip(
+      avatar: CircleAvatar(backgroundColor: color, radius: 8),
+      label: Text(subject.name),
+      visualDensity: VisualDensity.compact,
     );
   }
 }
