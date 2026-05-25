@@ -18,11 +18,14 @@ service cloud.firestore {
 
     // Disciplinas ficam em colecao raiz com campo userId.
     // Cada usuario so acessa documentos onde userId bate com o uid dele.
+    // Split entre create e read/update/delete evita que o Firestore tente
+    // avaliar resource.data.userId em uma operacao create, onde resource
+    // ainda nao existe e a avaliacao com erro derruba toda a checagem.
     match /subjects/{subjectId} {
-      allow read, write: if request.auth != null
-        && request.auth.uid == resource.data.userId;
       allow create: if request.auth != null
         && request.auth.uid == request.resource.data.userId;
+      allow read, update, delete: if request.auth != null
+        && request.auth.uid == resource.data.userId;
     }
   }
 }
