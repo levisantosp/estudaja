@@ -96,8 +96,8 @@ class _SubjectFormPageState extends State<SubjectFormPage> {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Não foi possível salvar a disciplina: $error'),
+        const SnackBar(
+          content: Text('Não foi possível salvar a disciplina.'),
         ),
       );
       return;
