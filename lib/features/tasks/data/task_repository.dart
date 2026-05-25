@@ -49,23 +49,27 @@ class TaskRepository {
     });
   }
 
-  // update: altera os campos editaveis de uma tarefa existente
+  // update: altera os campos editaveis de uma tarefa existente.
+  // subjectId e dueDate sao "clearable": passar null remove o campo no firestore.
+  // priority e status sao obrigatorios porque toda tarefa sempre tem um valor
   Future<void> updateTask({
     required String taskId,
     required String title,
     required String description,
-    String? priority,
-    String? status,
-    String? subjectId,
-    DateTime? dueDate,
+    required String priority,
+    required String status,
+    required String? subjectId,
+    required DateTime? dueDate,
   }) {
     return _tasksCollection.doc(taskId).update({
       'title': title,
       'description': description,
-      'priority': ?priority,
-      'status': ?status,
-      'subjectId': ?subjectId,
-      if (dueDate != null) 'dueDate': Timestamp.fromDate(dueDate),
+      'priority': priority,
+      'status': status,
+      'subjectId': subjectId ?? FieldValue.delete(),
+      'dueDate': dueDate != null
+          ? Timestamp.fromDate(dueDate)
+          : FieldValue.delete(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
