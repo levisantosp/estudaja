@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../../subjects/data/subject.dart';
+import '../../../subjects/data/subject_repository.dart';
 import '../../data/task.dart';
 import '../../data/task_repository.dart';
 import '../widgets/task_card.dart';
@@ -16,6 +18,7 @@ class TasksPage extends StatefulWidget {
 
 class _TasksPageState extends State<TasksPage> {
   late final TaskRepository _repository;
+  late final SubjectRepository _subjectRepository;
 
   @override
   void initState() {
@@ -23,6 +26,7 @@ class _TasksPageState extends State<TasksPage> {
     // resolve o uid uma unica vez para nao recriar o repositorio em cada rebuild
     final user = FirebaseAuth.instance.currentUser!;
     _repository = TaskRepository(userId: user.uid);
+    _subjectRepository = SubjectRepository(userId: user.uid);
   }
 
   // abre o formulario de tarefa. quando task e null, abre em modo criacao
@@ -87,41 +91,66 @@ class _TasksPageState extends State<TasksPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Minhas tarefas')),
-      body: StreamBuilder<List<Task>>(
-        stream: _repository.watchTasks(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasError) {
-            return const Center(child: Text('Erro ao carregar as tarefas.'));
-          }
-
-          final tasks = snapshot.data ?? const <Task>[];
-
-          if (tasks.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Text(
-                  'Nenhuma tarefa cadastrada.\nToque no botão + para criar a primeira.',
-                  textAlign: TextAlign.center,
-                ),
-              ),
+      // o stream de disciplinas fica por fora porque o card precisa do nome
+      // e da cor de cada uma. se falhar (ex: indice composto faltando),
+      // o mapa fica vazio e os cards apenas nao exibem o chip de disciplina
+      body: StreamBuilder<List<Subject>>(
+        stream: _subjectRepository.watchSubjects(),
+        builder: (context, subjectsSnapshot) {
+          // se as disciplinas falharem, registra mas nao quebra a tela de tarefas.
+          // os cards apenas deixam de mostrar o chip de disciplina
+          if (subjectsSnapshot.hasError) {
+            debugPrint(
+              'Erro ao carregar disciplinas na tela de tarefas: '
+              '${subjectsSnapshot.error}',
             );
           }
+          final subjects = subjectsSnapshot.data ?? const <Subject>[];
+          final subjectsById = {for (final s in subjects) s.id: s};
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(8),
-            itemCount: tasks.length,
-            itemBuilder: (context, index) {
-              final task = tasks[index];
-              return TaskCard(
-                task: task,
-                onToggleDone: (isDone) => _toggleDone(task, isDone),
-                onTap: () => _openForm(task: task),
-                onDelete: () => _confirmDelete(task),
+          return StreamBuilder<List<Task>>(
+            stream: _repository.watchTasks(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (snapshot.hasError) {
+                return const Center(
+                  child: Text('Erro ao carregar as tarefas.'),
+                );
+              }
+
+              final tasks = snapshot.data ?? const <Task>[];
+
+              if (tasks.isEmpty) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Text(
+                      'Nenhuma tarefa cadastrada.\nToque no botão + para criar a primeira.',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                padding: const EdgeInsets.all(8),
+                itemCount: tasks.length,
+                itemBuilder: (context, index) {
+                  final task = tasks[index];
+                  final subject = task.subjectId != null
+                      ? subjectsById[task.subjectId]
+                      : null;
+                  return TaskCard(
+                    task: task,
+                    subject: subject,
+                    onToggleDone: (isDone) => _toggleDone(task, isDone),
+                    onTap: () => _openForm(task: task),
+                    onDelete: () => _confirmDelete(task),
+                  );
+                },
               );
             },
           );
