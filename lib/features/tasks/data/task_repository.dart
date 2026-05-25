@@ -66,6 +66,9 @@ class TaskRepository {
       'description': description,
       'priority': priority,
       'status': status,
+      // mantem isDone alinhado com o status para que o checkbox da lista
+      // sempre reflita o estado atual da tarefa
+      'isDone': status == 'completed',
       'subjectId': subjectId ?? FieldValue.delete(),
       'dueDate': dueDate != null
           ? Timestamp.fromDate(dueDate)
