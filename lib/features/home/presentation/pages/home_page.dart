@@ -44,14 +44,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Future<void> _logout() async {
-    await FirebaseAuth.instance.signOut();
-    if (!mounted) {
-      return;
-    }
-    Navigator.of(context).pushReplacementNamed(AppRoutes.login);
-  }
-
   // abre o formulario de edicao para a tarefa tocada nas listas de prazo
   Future<void> _openTask(Task task) async {
     await Navigator.of(context).push(
@@ -82,9 +74,19 @@ class _HomePageState extends State<HomePage> {
             tooltip: 'Disciplinas',
           ),
           IconButton(
-            onPressed: _logout,
-            icon: const Icon(Icons.logout),
-            tooltip: 'Sair',
+            onPressed: () async {
+              await Navigator.of(context).pushNamed(AppRoutes.profile);
+              // recarrega o nome ao voltar do perfil para refletir edicoes
+              if (!mounted) {
+                return;
+              }
+              final user = FirebaseAuth.instance.currentUser;
+              if (user != null) {
+                _loadUserName(user.uid);
+              }
+            },
+            icon: const Icon(Icons.account_circle),
+            tooltip: 'Perfil',
           ),
         ],
       ),

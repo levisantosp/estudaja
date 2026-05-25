@@ -7,6 +7,7 @@ import 'features/auth/presentation/pages/forgot_password_page.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
 import 'features/home/presentation/pages/home_page.dart';
+import 'features/profile/presentation/pages/profile_page.dart';
 import 'features/subjects/presentation/pages/subjects_page.dart';
 import 'features/tasks/presentation/pages/tasks_page.dart';
 
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
         AppRoutes.home: (_) => const HomePage(),
         AppRoutes.tasks: (_) => const TasksPage(),
         AppRoutes.subjects: (_) => const SubjectsPage(),
+        AppRoutes.profile: (_) => const ProfilePage(),
       },
     );
   }

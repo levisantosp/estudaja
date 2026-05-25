@@ -8,4 +8,5 @@ class AppRoutes {
   static const String forgotPassword = '/forgot-password';
   static const String tasks = '/tasks';
   static const String subjects = '/subjects';
+  static const String profile = '/profile';
 }
