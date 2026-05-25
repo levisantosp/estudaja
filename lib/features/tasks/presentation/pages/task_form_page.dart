@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../../subjects/data/subject.dart';
+import '../../../subjects/data/subject_repository.dart';
 import '../../data/task.dart';
 import '../../data/task_repository.dart';
 
@@ -23,6 +25,9 @@ class _TaskFormPageState extends State<TaskFormPage> {
   String _priority = 'medium';
   String _status = 'pending';
   DateTime? _dueDate;
+  String? _subjectId;
+  // carrega uma vez a lista de disciplinas para popular o dropdown
+  late final Future<List<Subject>> _subjectsFuture;
   bool _isLoading = false;
 
   bool get _isEditing => widget.task != null;
@@ -30,6 +35,11 @@ class _TaskFormPageState extends State<TaskFormPage> {
   @override
   void initState() {
     super.initState();
+
+    // carrega a primeira emissao do stream de disciplinas para popular o
+    // dropdown. usar .first faz uma leitura unica sem manter assinatura ativa
+    final user = FirebaseAuth.instance.currentUser!;
+    _subjectsFuture = SubjectRepository(userId: user.uid).watchSubjects().first;
 
     // quando esta editando, preenche os campos com os valores existentes
     final task = widget.task;
@@ -39,6 +49,7 @@ class _TaskFormPageState extends State<TaskFormPage> {
       _priority = task.priority;
       _status = task.status;
       _dueDate = task.dueDate;
+      _subjectId = task.subjectId;
     }
   }
 
@@ -117,6 +128,7 @@ class _TaskFormPageState extends State<TaskFormPage> {
           description: description,
           priority: _priority,
           status: _status,
+          subjectId: _subjectId,
           dueDate: _dueDate,
         );
       } else {
@@ -124,15 +136,19 @@ class _TaskFormPageState extends State<TaskFormPage> {
           title: title,
           description: description,
           priority: _priority,
+          subjectId: _subjectId,
           dueDate: _dueDate,
         );
       }
-    } catch (_) {
+    } catch (error, stackTrace) {
+      // imprime o erro completo no terminal para facilitar o diagnostico
+      debugPrint('Erro ao salvar tarefa: $error');
+      debugPrint(stackTrace.toString());
       if (!mounted) {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Não foi possível salvar a tarefa.')),
+        SnackBar(content: Text('Não foi possível salvar a tarefa: $error')),
       );
       return;
     } finally {
@@ -188,6 +204,51 @@ class _TaskFormPageState extends State<TaskFormPage> {
                   hintText: 'Detalhes da tarefa (opcional)',
                   alignLabelWithHint: true,
                 ),
+              ),
+              const SizedBox(height: 16),
+              FutureBuilder<List<Subject>>(
+                future: _subjectsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const LinearProgressIndicator();
+                  }
+
+                  final subjects = snapshot.data ?? const <Subject>[];
+                  // tarefa pode referenciar uma disciplina ja excluida.
+                  // nesse caso adicionamos um item extra para nao quebrar o dropdown
+                  final isOrphan = _subjectId != null &&
+                      !subjects.any((s) => s.id == _subjectId);
+
+                  return DropdownButtonFormField<String?>(
+                    initialValue: _subjectId,
+                    decoration: const InputDecoration(
+                      labelText: 'Disciplina (opcional)',
+                    ),
+                    items: [
+                      const DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text('Sem disciplina'),
+                      ),
+                      for (final subject in subjects)
+                        DropdownMenuItem<String?>(
+                          value: subject.id,
+                          child: Text(subject.name),
+                        ),
+                      if (isOrphan)
+                        DropdownMenuItem<String?>(
+                          value: _subjectId,
+                          child: const Text('Disciplina removida'),
+                        ),
+                    ],
+                    onChanged: _isLoading
+                        ? null
+                        : (value) {
+                            setState(() {
+                              _subjectId = value;
+                            });
+                          },
+                  );
+                },
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
@@ -249,9 +310,22 @@ class _TaskFormPageState extends State<TaskFormPage> {
                       ? 'Sem prazo definido'
                       : 'Prazo: ${_formatDate(_dueDate!)}',
                 ),
-                trailing: TextButton(
-                  onPressed: _isLoading ? null : _pickDueDate,
-                  child: Text(_dueDate == null ? 'Definir' : 'Alterar'),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_dueDate != null)
+                      IconButton(
+                        icon: const Icon(Icons.clear),
+                        tooltip: 'Remover prazo',
+                        onPressed: _isLoading
+                            ? null
+                            : () => setState(() => _dueDate = null),
+                      ),
+                    TextButton(
+                      onPressed: _isLoading ? null : _pickDueDate,
+                      child: Text(_dueDate == null ? 'Definir' : 'Alterar'),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 24),
