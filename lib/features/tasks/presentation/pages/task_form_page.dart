@@ -148,7 +148,7 @@ class _TaskFormPageState extends State<TaskFormPage> {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Não foi possível salvar a tarefa: $error')),
+        const SnackBar(content: Text('Não foi possível salvar a tarefa.')),
       );
       return;
     } finally {
