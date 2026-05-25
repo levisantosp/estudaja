@@ -45,19 +45,20 @@ class SubjectRepository {
     });
   }
 
-  // update: altera os campos editaveis de uma disciplina existente
+  // update: altera os campos editaveis de uma disciplina existente.
+  // teacher, schedule e color sao "clearable": passar null remove o campo no firestore
   Future<void> updateSubject({
     required String subjectId,
     required String name,
-    String? teacher,
-    String? schedule,
-    int? color,
+    required String? teacher,
+    required String? schedule,
+    required int? color,
   }) {
     return _subjectsCollection.doc(subjectId).update({
       'name': name,
-      'teacher': ?teacher,
-      'schedule': ?schedule,
-      'color': ?color,
+      'teacher': teacher ?? FieldValue.delete(),
+      'schedule': schedule ?? FieldValue.delete(),
+      'color': color ?? FieldValue.delete(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
