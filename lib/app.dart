@@ -7,6 +7,7 @@ import 'features/auth/presentation/pages/forgot_password_page.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/register_page.dart';
 import 'features/home/presentation/pages/home_page.dart';
+import 'features/subjects/presentation/pages/subjects_page.dart';
 import 'features/tasks/presentation/pages/tasks_page.dart';
 
 // widget raiz do app. configura tema, rotas e decide qual tela abrir primeiro
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
         AppRoutes.forgotPassword: (_) => const ForgotPasswordPage(),
         AppRoutes.home: (_) => const HomePage(),
         AppRoutes.tasks: (_) => const TasksPage(),
+        AppRoutes.subjects: (_) => const SubjectsPage(),
       },
     );
   }
