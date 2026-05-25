@@ -63,6 +63,14 @@ class HomePage extends StatelessWidget {
                     style: Theme.of(context).textTheme.headlineSmall,
                     textAlign: TextAlign.center,
                   ),
+                  const SizedBox(height: 32),
+                  FilledButton.icon(
+                    onPressed: () => Navigator.of(
+                      context,
+                    ).pushNamed(AppRoutes.tasks),
+                    icon: const Icon(Icons.checklist),
+                    label: const Text('Minhas tarefas'),
+                  ),
                 ],
               ),
             ),
