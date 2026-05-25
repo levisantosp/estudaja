@@ -74,10 +74,13 @@ class TaskRepository {
     });
   }
 
-  // update: muda apenas o campo isDone, chamado quando o usuário marca o checkbox
+  // update: muda o campo isDone via checkbox e sincroniza o status.
+  // marcar = concluida, desmarcar = pendente. estados intermediarios como
+  // "em andamento" so podem ser alterados pela tela de edicao
   Future<void> toggleTaskDone({required String taskId, required bool isDone}) {
     return _tasksCollection.doc(taskId).update({
       'isDone': isDone,
+      'status': isDone ? 'completed' : 'pending',
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
