@@ -71,6 +71,14 @@ class HomePage extends StatelessWidget {
                     icon: const Icon(Icons.checklist),
                     label: const Text('Minhas tarefas'),
                   ),
+                  const SizedBox(height: 12),
+                  FilledButton.icon(
+                    onPressed: () => Navigator.of(
+                      context,
+                    ).pushNamed(AppRoutes.subjects),
+                    icon: const Icon(Icons.school),
+                    label: const Text('Minhas disciplinas'),
+                  ),
                 ],
               ),
             ),
